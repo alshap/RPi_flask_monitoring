@@ -34,8 +34,8 @@ def main():
 
            distance = round(distance+1.15, 2)
            print(distance)
-    except KeyboardInterrupt:
-         GPIO.cleanup()
+    except timeout_decorator.timeout_decorator.TimeoutError:
+        print("Timeout exceeded. Retrying")
 
 if __name__ == '__main__':
     main()
