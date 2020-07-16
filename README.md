@@ -4,6 +4,12 @@
 
 ## Connection schema
 
+<details><summary>**Spoiler**</summary>
+
+![Screenshot](https://github.com/alshap/RPi_flask_monitoring/blob/master/images/schema.png)
+
+</details>
+
 ## Examples
 
 Example codes for each sensor are in /examples folder.
