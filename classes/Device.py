@@ -6,13 +6,13 @@ class Device:
         self.name = str(name)
         self.pin = int(pin)
         
-    def setup():
+    def setup(self):
         GPIO.setup(self.pin, GPIO.OUT)
         
-    def on():
+    def on(self):
         GPIO.output(self.pin, GPIO.HIGH)
     
-    def off():
+    def off(self):
         GPIO.output(self.pin, GPIO.LOW)
         
     def message(self):
