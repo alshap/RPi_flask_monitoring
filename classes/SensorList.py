@@ -1,6 +1,6 @@
 import sys
 sys.path.append("../")
-sys.path.append("./sensors/")
+sys.path.append("/home/pi/Desktop/flask_server/classes/sensors")
 
 import psycopg2
 import RPi.GPIO as GPIO
@@ -22,7 +22,7 @@ class SensorList():
         
     def getSensors(self):
         sensors = []
-        select_query = 'select name, pin from sensor'
+        select_query = 'select name, pin, sensor_id from sensor'
         connection = False
         try:
             params = config()
@@ -35,7 +35,7 @@ class SensorList():
             for row in sensors_records:
                 try:
                     exec('from ' + row[0] + ' import ' + row[0])
-                    new_sensor = eval(row[0])(row[0], row[1])
+                    new_sensor = eval(row[0])(row[0], row[1], row[2])
                     if new_sensor:
                         sensors.append(new_sensor)
                 except Exception:
@@ -57,16 +57,16 @@ class SensorList():
         msg = ''
         if self.sensors:
             for sensor in self.sensors:
-                msg += 'Sensor name: ' + sensor.name + '. Sensor PIN: ' + str(sensor.pin) + '\n'
+                msg += 'ID: ' + str(sensor.sensor_id) + '. Sensor name: ' + sensor.name + '. Sensor PIN: ' + str(sensor.pin) + '\n'
         else:
             msg += 'Sensors list is empty'
         return msg
 
 # test
-sensors = SensorList()
-print(sensors.message())
-sensors.setup()
-for sensor in sensors.sensors:
-    while True:
-        time.sleep(1)
-        print(sensor.readValues())
+#sensors = SensorList()
+#print(sensors.message())
+#sensors.setup()
+#for sensor in sensors.sensors:
+#    while True:
+#        time.sleep(1)
+#        print(sensor.readValues())
