@@ -1,12 +1,14 @@
 import sys
 sys.path.append("../")
+sys.path.append("./sensors/")
 
 import psycopg2
 import RPi.GPIO as GPIO
 from Sensor import Sensor
 from config import config
+import time
 
-class SensorList:
+class SensorList():
     
     def __init__(self):
         self.sensors = self.getSensors()
@@ -31,11 +33,17 @@ class SensorList:
             
             sensors_records = cursor.fetchall()
             for row in sensors_records:
-                new_sensor = Sensor(row[0], row[1])
-                sensors.append(new_sensor)
+                try:
+                    exec('from ' + row[0] + ' import ' + row[0])
+                    new_sensor = eval(row[0])(row[0], row[1])
+                    if new_sensor:
+                        sensors.append(new_sensor)
+                except Exception:
+                    pass
             
             connection.commit()
         except (Exception, psycopg2.Error) as error:
+            print(error)
             print('Error in db')
             return []
         finally:
@@ -57,3 +65,8 @@ class SensorList:
 # test
 sensors = SensorList()
 print(sensors.message())
+sensors.setup()
+for sensor in sensors.sensors:
+    while True:
+        time.sleep(1)
+        print(sensor.readValues())
