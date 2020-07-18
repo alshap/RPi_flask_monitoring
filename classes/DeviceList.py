@@ -1,7 +1,11 @@
+import sys
+sys.path.append("../")
+
 import psycopg2
 import RPi.GPIO as GPIO
 from Device import Device
 from config import config
+from time import sleep
 
 class DeviceList:
     
@@ -46,7 +50,7 @@ class DeviceList:
         msg = ''
         if self.devices:
             for device in self.devices:
-                msg += 'Device name: ' + device.name + '. Device PIN: ' + str(device.pin)
+                msg += 'Device name: ' + device.name + '. Device PIN: ' + str(device.pin) + '\n'
         else:
             msg += 'Devices list is empty'
         return msg
@@ -54,3 +58,10 @@ class DeviceList:
 # test
 devices = DeviceList()
 print(devices.message())
+devices.setup()
+for device in devices.devices:
+    while True:
+        device.on()
+        sleep(1)
+        device.off()
+        sleep(1)
