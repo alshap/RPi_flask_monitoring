@@ -21,9 +21,13 @@ class MonitoringServer():
         @self.application.route('/',methods = ['POST', 'GET'])
         def index():
             if request.method == 'POST':
-                if request.args.get('red_led'):
-                    if self.devices[0].getState(): self.devices[0].on()
-                    else: self.devices[0].off()
+                print(request.form['red_led'])
+                print(self.devices[0].getState())
+                if request.form['red_led']:
+                    for x in self.devices:
+                        if x.name == 'red_led':
+                            if x.getState(): self.devices[0].off()
+                            else: x.on()      
             return render_template('template.html')
         
         @self.application.route('/chart-data')
