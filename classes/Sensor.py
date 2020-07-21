@@ -12,3 +12,6 @@ class Sensor:
           
     def message(self):
         return 'Sensor name: ' + self.name + '. Sensor PIN: ' + str(self.pin)
+    
+    def readValues(self):
+        pass
