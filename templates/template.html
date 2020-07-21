@@ -6,7 +6,60 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
 </head>
+
+<style>
+    <!--https://jeromejaglale.com/doc/css/pretty_button -->
+    .button {
+        text-shadow: 0 -1px 1px rgba(0,0,0,0.25), -2px 0 1px rgba(0,0,0,0.25);
+        border-radius: 5px;
+        display: inline-block;
+        color: white;
+        padding: 5px 10px 5px;
+        white-space: nowrap;
+        text-decoration: none;
+        background: #A9014B;
+        border-style: none;
+        text-align: center;
+        overflow: visible;
+    }
+     
+    .button:hover,
+    .button:focus {
+        background-position: 0 -50px;
+        color: white;
+    }
+    
+    .devicespanel{
+        position: relative;
+        margin-left: 20%;
+        margin-top: 5%;
+        width: 30%;
+    }
+    
+    #container{
+        width: 100%;
+        margin-left: 5%;
+        margin-top: 5%;
+    }
+    
+    .choice{
+        margin-top: 2%;
+        margin-left: 2%;
+    }
+
+</style>
 <body>
+<div class="choice">
+
+    <form method = "get">
+        <label for="birthday">Show data in selected period</label>
+        <input type="date" id="datefrom" name="From">
+        <input type="date" id="dateto" name="To">
+        <input type="submit" value="Show">
+    
+    </form>
+
+</div>
 <div id="container">
     <div class="row">
         <div class="col-5">
@@ -30,12 +83,13 @@
             </div>
         </div>
     </div>
-    <div class="row">
+</div>
+
+<div class="devicespanel">
         <form action = "" method = "post">
-         <p><input type = "submit" value = "Change Red LED" name = "red_led" /></p>
+         <p><input class = "button" type = "submit" value = "Change Red LED" name = "red_led" /></p>
       </form>
     </div>
-</div>
 <!--suppress JSUnresolvedLibraryURL -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <!--suppress JSUnresolvedLibraryURL -->
