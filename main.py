@@ -9,12 +9,22 @@ from config import config
 import datetime
 from SensorList import SensorList
 from DeviceList import DeviceList
+from Server import MonitoringServer
 
 postgres_query = """ INSERT INTO sensordata (sensor_id, data, time) VALUES (%s, ARRAY [%s], %s)"""
 
 def main():
-    data_thread = threading.Thread(target=thread_getSendData, args=())
+    sensorList = SensorList()
+    sensorList.setup()
+    deviceList = DeviceList()
+    deviceList.setup()
+    
+    data_thread = threading.Thread(target=thread_getSendData, args=(sensorList, ))
     data_thread.start()
+    web = MonitoringServer(sensorList.sensors, deviceList.devices)
+    web.routes()
+    web.run()
+    
     
 def postgre_insert(query, record):
     connection = False
@@ -32,9 +42,7 @@ def postgre_insert(query, record):
             cursor.close()
             connection.close()
 
-def thread_getSendData():
-    sensorList = SensorList()
-    sensorList.setup()
+def thread_getSendData(sensorList):
     print(sensorList.message())
 
     sensors = sensorList.sensors
