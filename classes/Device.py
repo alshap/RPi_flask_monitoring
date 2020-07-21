@@ -15,5 +15,8 @@ class Device:
     def off(self):
         GPIO.output(self.pin, GPIO.LOW)
         
+    def getState(self):
+        return GPIO.input(self.pin)
+        
     def message(self):
         print('Device name: ' + self.name + '. Device PIN: ' + str(self.pin))
