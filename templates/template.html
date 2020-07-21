@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Creating Real-Time Charts with Flask</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
+</head>
+<body>
+<div id="container">
+    <div class="row">
+        <div class="col-5">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="canvas_dht22"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        
+    </div>
+    
+    <div class="row">
+        <div class="col-5">
+            <div class="card">
+                <div class="card-body">
+                    <canvas id="canvas_photoresistor"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <form action = "" method = "post">
+         <p><input type = "submit" value = "Change Red LED" name = "red_led" /></p>
+      </form>
+    </div>
+</div>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<!--suppress JSUnresolvedLibraryURL -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const config_dht22 = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Temperature(*C)",
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(0, 240, 0)',
+                    data: [],
+                    fill: false,
+                },{
+                    label: "Humidity(%)",
+                    backgroundColor: 'rgb(155, 30, 17)',
+                    borderColor: 'rgb(25, 25, 240)',
+                    data: [],
+                    fill: false,
+                }],
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Realtime DHT22 chart'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value'
+                        }
+                    }]
+                }
+            }
+        };
+        
+        const config_photoresistor = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: "Photoresistor(boolean)",
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(0, 240, 0)',
+                    data: [],
+                    fill: false,
+                }],
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Realtime Photoresistor chart'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value'
+                        }
+                    }]
+                }
+            }
+        };
+
+        
+        var sensors = ["dht22", "photoresistor"]
+
+
+        const dht22context = document.getElementById('canvas_dht22').getContext('2d');
+        const photoresistorcontext = document.getElementById('canvas_photoresistor').getContext('2d');
+
+        const lineChart_dht22 = new Chart(dht22context, config_dht22);
+        const lineChart_photoresistor = new Chart(photoresistorcontext, config_photoresistor);
+
+        const source = new EventSource("/chart-data");
+
+        source.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            
+            if (data.sensor == "DHT22"){
+                if (config_dht22.data.labels.length === 20) {
+                config_dht22.data.labels.shift();
+                config_dht22.data.datasets[0].data.shift();
+                }
+                config_dht22.data.labels.push(data.time);
+                config_dht22.data.datasets[0].data.push(data.value[0]);
+                config_dht22.data.datasets[01].data.push(data.value[1]);
+                lineChart_dht22.update();
+                
+            }else if (data.sensor == "Photoresistor"){
+                if (config_photoresistor.data.labels.length === 20) {
+                config_photoresistor.data.labels.shift();
+                config_photoresistor.data.datasets[0].data.shift();
+                }
+                config_photoresistor.data.labels.push(data.time);
+                config_photoresistor.data.datasets[0].data.push(data.value);
+                lineChart_photoresistor.update();
+            }
+        }
+        
+        
+    });
+</script>
+</body>
+</html>
