@@ -5,6 +5,7 @@ import json
 import random
 import time
 from datetime import datetime
+from dateutil import parser
 
 from flask import Flask, Response, render_template, request, url_for, redirect
 
@@ -17,10 +18,26 @@ class MonitoringServer():
         self.devices = devices
         
     def routes(self):
-        
-        @self.application.route('/sorted_data/<datefrom>-<dateto>')
-        def sorted_data(datefrom, dateto):
-            return 'Date from: %s Date to: %s' % (datefrom, dateto)
+        @self.application.route('/sorted_data/<selected_sensor>&<datefrom>&<dateto>')
+        def sorted_data(datefrom, dateto, selected_sensor):
+            records = []
+            for sensor in self.sensors:
+                if sensor.name == selected_sensor:
+                    records.append(sensor.getDataOnPeriod(datefrom, dateto))
+            times = []
+            values = []
+            for device_records in records:
+                for record in device_records:
+                    if type(record['data'][0]) == type([]):
+                        for i in range(0, len(record['data'][0])):
+                            values.append(record['data'][0][i])
+                            times.append(record['time'])
+                    elif type(record['data'][0]) == type(1.5):
+                        values.append(record['data'][0])
+                        times.append(record['time'])
+            title = 'Sensor: ' + selected_sensor + '\n From ' + datefrom + ' To ' + dateto
+            return render_template('sorted_data.html',title=title, values=values, labels=times, max=20)
+            
         
         @self.application.route('/',methods = ['POST', 'GET'])
         def index():
@@ -32,15 +49,19 @@ class MonitoringServer():
                                 if x.getState(): self.devices[0].off()
                                 else: x.on()
                 elif request.method == 'GET':
+                    if request.args['SelectedSensor']:
+                        selected_sensor = request.args['SelectedSensor']
+                    else:
+                        return render_template('template.html')
                     if request.args['DateFrom']:
                         datefrom = request.args['DateFrom']
                     else:
                         datefrom = 0
                     if request.args['DateTo']:
-                    dateto = request.args['DateTo']
+                        dateto = request.args['DateTo']
                     else:
                         dateto = datetime.now()
-                    return redirect(url_for('sorted_data',datefrom = datefrom, dateto = dateto))
+                    return redirect(url_for('sorted_data',datefrom = datefrom, dateto = dateto, selected_sensor = selected_sensor))
                     
                 return render_template('template.html')
             except Exception as e:
@@ -66,3 +87,18 @@ class MonitoringServer():
     def run(self):
         self.application.run(debug=True, threaded=True)
         
+sensors = SensorList()
+for sensor in sensors.sensors:
+    if (sensor.name == 'DHT22'):
+        dht22 = sensor
+    elif (sensor.name == 'Photoresistor'):
+        photoresistor = sensor
+
+#datad = dht22.getDataOnPeriod('22-07-2020', '24-07-2020')
+#datap = photoresistor.getDataOnPeriod('20-07-2020', '24-07-2020')
+#print(type(datad[0]['data'][0]))
+#print(type(datap[0]['data'][0]))
+#print(datad[0])
+#print(datap[0])
+#if type(datad[0] == type([])):
+#    print('list')
