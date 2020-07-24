@@ -104,11 +104,15 @@ DeviceList class were created to get Devices from database and have following fu
 * getDevices() to get devices list from database
 * message() to display information about all connected devices
 
+#### Postgree database
+
+#### Flask web server
+
 ### Frontend
 
 #### Visualization and monitoring
 
----
+
 
 ## Literature
 
