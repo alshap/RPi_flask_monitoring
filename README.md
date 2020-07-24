@@ -106,6 +106,20 @@ DeviceList class were created to get Devices from database and have following fu
 
 #### Postgree database
 
+In project implemented local Postgree database with 3 tables for holding Sensors, Devices and data getted from sensors. 
+
+Give an attention that data value in sensordata table is collected as array because some sensors return many different values.
+
+**Sensor class and sensor table are connected by the fact that Sensor subclass name should be the same as sensor name in the database**. To understand how it works check function getSensors() in SensorList class.
+
+Data saving to database function is located in executable main.py file.
+* postgre_insert() saves sensor data to the database.
+
+Database credentials are in database.ini file.
+
+Guide about using Postgres on Raspberry Pi via command prompt.
+https://opensource.com/article/17/10/set-postgres-database-your-raspberry-pi
+
 #### Flask web server
 
 ### Frontend
