@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Creating Real-Time Charts with Flask</title>
+    <title>Real-time control panel</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 </head>
 
 <style>
@@ -29,67 +30,87 @@
         color: white;
     }
     
-    .devicespanel{
-        position: relative;
-        margin-left: 20%;
-        margin-top: 5%;
+    .container{
+        width: 65%;
+        margin-top: 2%;
+        margin-left: 0%;
+        display:inline-block;
+        vertical-align: top;
+        padding: 2%;
+    }
+    .container-2{
+        margin-top: 2%;
         width: 30%;
+        display:inline-block;
+        right: 2%;
+        vertical-align: top;
+        padding: 2%;
     }
-    
-    #container{
-        width: 100%;
-        margin-left: 5%;
-        margin-top: 5%;
-    }
+
     
     .choice{
-        margin-top: 2%;
-        margin-left: 2%;
+        padding-top: 3%;
+        padding-bottom: 3%;
+        padding-left: 1%;
     }
+    .main-c: background-color: gray;
 
 </style>
+
 <body>
-<div class="choice">
-
-    <form method = "get">
-        <label for="birthday">Show data in selected period</label>
-        <input type="date" id="datefrom" name="From">
-        <input type="date" id="dateto" name="To">
-        <input type="submit" value="Show">
-    
-    </form>
-
-</div>
-<div id="container">
-    <div class="row">
-        <div class="col-5">
-            <div class="card">
-                <div class="card-body">
-                    <canvas id="canvas_dht22"></canvas>
-                </div>
+<div class="main-c">
+    <div class="w3-card-4 container" id="graph-container">
+        <h1>Monitoring panel</h1>
+        <div class="choice">
+            <div class="w3-card" style="padding: 5px;">
+                <form action ="http://localhost:5000/" method = "GET">
+                    <label>Show data in selected period</label>
+                    <select id="title" name="SelectedSensor">
+                         <option value="DHT22" selected>DHT22</option>
+                         <option value="Photoresistor" selected>Photoresistor</option>
+                    </select>
+                    <input type="date" name="DateFrom">
+                    <input type="date" name="DateTo">
+                    <input type="submit" value="Show">
+                
+                </form>
             </div>
         </div>
-    </div>
-    <div class="row">
-        
-    </div>
-    
-    <div class="row">
-        <div class="col-5">
-            <div class="card">
-                <div class="card-body">
-                    <canvas id="canvas_photoresistor"></canvas>
+        <!--
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <canvas id="canvas_dht22"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+            
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <canvas id="canvas_photoresistor"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            -->
+    </div>
+
+
+    <div class="w3-card-4 container-2">
+        <h1>Control panel</h1>
+            <div class="w3-card" style="padding: 5px;">
+              <form action = "" method = "POST">
+                 <p><input class = "button" type = "submit" value = "Change Red LED" name = "red_led" /></p>
+              </form>
+              <div style="width: 50px; height: 20px; background-color: green"></div>
+            </div>
     </div>
 </div>
 
-<div class="devicespanel">
-        <form action = "" method = "post">
-         <p><input class = "button" type = "submit" value = "Change Red LED" name = "red_led" /></p>
-      </form>
-    </div>
 <!--suppress JSUnresolvedLibraryURL -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <!--suppress JSUnresolvedLibraryURL -->
@@ -98,137 +119,184 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
 <script>
     $(document).ready(function () {
-        const config_dht22 = {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: "Temperature(*C)",
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(0, 240, 0)',
-                    data: [],
-                    fill: false,
-                },{
-                    label: "Humidity(%)",
-                    backgroundColor: 'rgb(155, 30, 17)',
-                    borderColor: 'rgb(25, 25, 240)',
-                    data: [],
-                    fill: false,
-                }],
+    
+ function getRandomInt(max) {
+      return Math.floor(Math.random() * Math.floor(max));
+    }
+        /*
+        var sensors = [{
+                name: "DHT22",
+                labels: ["Temperature", "Humidity"]
             },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    text: 'Realtime DHT22 chart'
-                },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                hover: {
-                    mode: 'nearest',
-                    intersect: true
-                },
-                scales: {
-                    xAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Time'
-                        }
-                    }],
-                    yAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Value'
-                        }
-                    }]
-                }
-            }
-        };
+            {name: "Photoresistor",
+            labels: ["Boolean"]
+            }];
+            */
+        var sensors = [];
+
+        {% for key, parent_dict in sensors.items() %}
+           sensors.push({
+                    name: '{{ parent_dict["name"] }}',
+                    labels: [{% for label in parent_dict['labels'] %}   '{{ label }}',  {% endfor %}]
+               });
+        {% endfor %}
+
+    
+
+        var configs = [];
+        var charts = [];
         
-        const config_photoresistor = {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: "Photoresistor(boolean)",
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(0, 240, 0)',
-                    data: [],
-                    fill: false,
-                }],
-            },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    text: 'Realtime Photoresistor chart'
-                },
-                tooltips: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                hover: {
-                    mode: 'nearest',
-                    intersect: true
-                },
-                scales: {
-                    xAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Time'
-                        }
-                    }],
-                    yAxes: [{
-                        display: true,
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Value'
-                        }
-                    }]
-                }
+        function getSensorNames(sensors){
+            sn = []
+            for (var i = 0;i < sensors.length;i++){
+                sn.push(sensors[i].name);
             }
-        };
-
-        
-        var sensors = ["dht22", "photoresistor"]
-
-
-        const dht22context = document.getElementById('canvas_dht22').getContext('2d');
-        const photoresistorcontext = document.getElementById('canvas_photoresistor').getContext('2d');
-
-        const lineChart_dht22 = new Chart(dht22context, config_dht22);
-        const lineChart_photoresistor = new Chart(photoresistorcontext, config_photoresistor);
-
-        const source = new EventSource("/chart-data");
-
-        source.onmessage = function (event) {
-            const data = JSON.parse(event.data);
+            return sn;
             
-            if (data.sensor == "DHT22"){
-                if (config_dht22.data.labels.length === 20) {
-                config_dht22.data.labels.shift();
-                config_dht22.data.datasets[0].data.shift();
-                }
-                config_dht22.data.labels.push(data.time);
-                config_dht22.data.datasets[0].data.push(data.value[0]);
-                config_dht22.data.datasets[01].data.push(data.value[1]);
-                lineChart_dht22.update();
-                
-            }else if (data.sensor == "Photoresistor"){
-                if (config_photoresistor.data.labels.length === 20) {
-                config_photoresistor.data.labels.shift();
-                config_photoresistor.data.datasets[0].data.shift();
-                }
-                config_photoresistor.data.labels.push(data.time);
-                config_photoresistor.data.datasets[0].data.push(data.value);
-                lineChart_photoresistor.update();
-            }
         }
+           
+        function buildSensorConfigs(sensors){
+            sc = [];
+            for (var i = 0; i < sensors.length;i++){
+                sc.push(addSensorToConfig(sensors[i]));
+            }
+            return sc;
+        }
+        sensorNames = getSensorNames(sensors);
+        
+        
+        function addSensorToConfig(sensor){
+            var temp_config = {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [],
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: ''
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time'
+                        }
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Value'
+                        }
+                    }]
+                }
+            }
+        };
+            temp_config.data.datasets = [];
+            for (j = 0; j < sensor.labels.length; j++){
+                bgcolor = 'rgb('+getRandomInt(256)+', '+getRandomInt(256)+', '+getRandomInt(256)+')';
+                bcolor = 'rgb('+getRandomInt(256)+', '+getRandomInt(256)+', '+getRandomInt(256)+')';
+                temp_config.data.datasets.push({
+                                        label: sensor.labels[j],
+                                        backgroundColor: bgcolor,
+                                        borderColor: bcolor,
+                                        data: [],
+                                        fill: false
+                                            });
+            }
+            
+            temp_config.options.title.text = sensor.name;
+            console.log(temp_config.data.datasets);
+            configs.push(temp_config);
+            return temp_config;
+        }
+        
+        sensorConfigs = buildSensorConfigs(sensors);   
+        
+        
+        function graphCanvasGenerate(sensor, config){
+                canvas_name = 'canvas_'+sensor.name;
+                
+                graph_container = document.getElementById('graph-container');
+                
+                var sensor_container = document.createElement('div');
+                sensor_container.classList.add("row");
+                
+                var container_col = document.createElement('div');
+                container_col.classList.add("col");
+                
+                var container_card = document.createElement('div');
+                container_card.classList.add("card");
+                
+                var container_cardbody = document.createElement('div');
+                container_cardbody.classList.add("card-body");
+                
+                var container_canvas = document.createElement('canvas');
+                container_canvas.id = canvas_name;
+                
+                container_cardbody.appendChild(container_canvas);
+                container_card.appendChild(container_cardbody);
+                container_col.appendChild(container_card);
+                sensor_container.appendChild(container_col);
+                
+                graph_container.appendChild(sensor_container);
+                
+                var context = container_canvas.getContext('2d');
+                
+                var lineChart = new Chart(context, config);
+                charts.push(lineChart);
+        }
+        
+        
+        for (var i = 0;i < sensors.length;i++){
+            graphCanvasGenerate(sensors[i], sensorConfigs[i]);
+        }
+
+            const source = new EventSource("/chart-data");
+            
+
+
+            
+            source.onmessage = function (event) {
+                const data = JSON.parse(event.data);
+                idx = sensorNames.indexOf(data.sensor);
+                if (idx >= 0){
+                    
+                    if (configs[idx].data.labels.length === 20) {
+                    configs[idx].data.labels.shift();
+                    configs[idx].data.datasets[0].data.shift();
+                    }
+                    configs[idx].data.labels.push(data.time);
+                    
+                    len = configs[idx].data.datasets.length;
+                    if (len > 1){
+                        for (var jj = 0;jj < len; jj++){
+                            configs[idx].data.datasets[jj].data.push(data.value[jj]);
+                        }
+                    }else{
+                        configs[idx].data.datasets[0].data.push(data.value);
+                    }
+                    charts[idx].update();
+                }
+                
+            }
+            
+        
+        
+        
+        
         
         
     });
