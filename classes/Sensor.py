@@ -5,14 +5,14 @@ import RPi.GPIO as GPIO
 import psycopg2
 import datetime
 from config import config
-from dateutil import parser
 
 class Sensor:
     
-    def __init__(self, name, pin, sensor_id):
+    def __init__(self, name, pin, sensor_id, labels):
         self.name = str(name)
         self.pin = int(pin)
         self.sensor_id = int(sensor_id)
+        self.labels = labels
         
     def setup():
         GPIO.setup(self.pin, GPIO.IN)
@@ -21,11 +21,8 @@ class Sensor:
         return 'Sensor name: ' + self.name + '. Sensor PIN: ' + str(self.pin)
     
     def getDataOnPeriod(self, datefrom, dateto):
-        datefrom = parser.parse(datefrom)
-        dateto = parser.parse(dateto)
         data = []
-        select_query = 'select name, data, time from sensordata inner join sensor on sensordata.sensor_id = ' + str(self.pin)
-        print(select_query)
+        select_query = "select name, data, time from sensordata, sensor where time >= '"+datefrom+"' and time <= '"+dateto+"' and sensordata.sensor_id = " + str(self.sensor_id)
         connection = False
         try:
             params = config()
@@ -51,6 +48,9 @@ class Sensor:
     
     def readValues(self):
         pass
+    
+    def getTypes(self):
+        return self.labels
 # test 
 # sensor = Sensor('DHT22', 4, 4)
-# print(sensor.getDataOnPeriod('18-07-2020', '24-09-2020'))
+# print(sensor.getDataOnPeriod('01-07-2020', '24-09-2020'))

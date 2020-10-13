@@ -22,7 +22,7 @@ class SensorList():
         
     def getSensors(self):
         sensors = []
-        select_query = 'select name, pin, sensor_id from sensor'
+        select_query = 'select name, pin, sensor_id, value_type from sensor'
         connection = False
         try:
             params = config()
@@ -33,9 +33,10 @@ class SensorList():
             
             sensors_records = cursor.fetchall()
             for row in sensors_records:
+                print(row)
                 try:
                     exec('from ' + row[0] + ' import ' + row[0])
-                    new_sensor = eval(row[0])(row[0], row[1], row[2])
+                    new_sensor = eval(row[0])(row[0], row[1], row[2], row[3])
                     if new_sensor:
                         sensors.append(new_sensor)
                 except Exception:
@@ -61,12 +62,10 @@ class SensorList():
         else:
             msg += 'Sensors list is empty'
         return msg
+    
 
 # test
 #sensors = SensorList()
 #print(sensors.message())
-#sensors.setup()
 #for sensor in sensors.sensors:
-#    while True:
-#        time.sleep(1)
-#        print(sensor.readValues())
+#    print(sensor.getTypes())
