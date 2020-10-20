@@ -20,3 +20,4 @@ class Device:
         
     def message(self):
         print('Device name: ' + self.name + '. Device PIN: ' + str(self.pin))
+        

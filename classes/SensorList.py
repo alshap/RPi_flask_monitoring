@@ -1,6 +1,6 @@
 import sys
 sys.path.append("../")
-sys.path.append("/home/pi/Desktop/flask_server/classes/sensors")
+sys.path.append("/home/pi/Desktop/flask_web_app/simple_web_app/classes/sensors")
 
 import psycopg2
 import RPi.GPIO as GPIO
@@ -65,7 +65,6 @@ class SensorList():
     
 
 # test
-#sensors = SensorList()
-#print(sensors.message())
-#for sensor in sensors.sensors:
-#    print(sensor.getTypes())
+sensors = SensorList()
+print(sensors.message())
+

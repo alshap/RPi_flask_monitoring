@@ -7,7 +7,7 @@ from Device import Device
 from config import config
 from time import sleep
 
-class DeviceList:
+class DeviceList():
     
     def __init__(self):
         self.devices = self.getDevices()
@@ -58,10 +58,10 @@ class DeviceList:
 # test
 devices = DeviceList()
 print(devices.message())
-devices.setup()
-for device in devices.devices:
-    while True:
-        device.on()
-        sleep(1)
-        device.off()
-        sleep(1)
+#devices.setup()
+#for device in devices.devices:
+#    while True:
+#        device.on()
+#        sleep(1)
+#        device.off()
+#        sleep(1)
