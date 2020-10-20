@@ -56,16 +56,6 @@ Postgree database client for local database control using command prompt
 sudo apt install postgresql libpq-dev postgresql-client
 ```
 
-Decorator to create timeout for function execution
-```
-sudo pip3 install timeout_decorator
-```
-
-Library to work with Date and Time data types
-```
-sudo pip3 install python-dateutil
-```
-
 ### Backend
 
 #### Data reading from sensors
@@ -122,11 +112,14 @@ https://opensource.com/article/17/10/set-postgres-database-your-raspberry-pi
 
 #### Flask web server
 
-### Frontend
+Server implementation is located in Server.py. 
 
-#### Visualization and monitoring
+Server implements 2 pages for data visualization ('/' and 'sorted_data' paths) and 1 page for data collecting from backend('chart-data') path. 
+Main page shows all sensors and devices defined in database. Devices can be turned on/off. In upper window user can select data in a certain period.
 
+**Data selection on period may work incorrect now**
 
+All data from backend go to 'chart-data' and then main page handle changes in chart-data. So all data from chart-data goes to main page visualization tables.
 
 ## Literature
 
