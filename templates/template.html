@@ -10,19 +10,7 @@
 
 <style>
     <!--https://jeromejaglale.com/doc/css/pretty_button -->
-    .button {
-        text-shadow: 0 -1px 1px rgba(0,0,0,0.25), -2px 0 1px rgba(0,0,0,0.25);
-        border-radius: 5px;
-        display: inline-block;
-        color: white;
-        padding: 5px 10px 5px;
-        white-space: nowrap;
-        text-decoration: none;
-        background: #A9014B;
-        border-style: none;
-        text-align: center;
-        overflow: visible;
-    }
+
      
     .button:hover,
     .button:focus {
@@ -39,7 +27,7 @@
         padding: 2%;
     }
     .container-2{
-        margin-top: 2%;
+        margin: 2%;
         width: 30%;
         display:inline-block;
         right: 2%;
@@ -53,6 +41,26 @@
         padding-bottom: 3%;
         padding-left: 1%;
     }
+    
+    .pdng{
+        padding-top: 0%;
+        padding-left: 10%;
+        width: 100%;
+        height: 100px;
+        margin-bottom: 2%;
+        margin-top: 2%;
+    }
+    .devicedisplay{
+        margin-right: 2%;
+        float: left;
+        width: 40%;
+        height: 40px;
+    }
+    
+    .status{
+        border: 1px solid black;
+    }
+    
     .main-c: background-color: gray;
 
 </style>
@@ -66,8 +74,8 @@
                 <form action ="http://localhost:5000/" method = "GET">
                     <label>Show data in selected period</label>
                     <select id="title" name="SelectedSensor">
-                         <option value="DHT22" selected>DHT22</option>
-                         <option value="Photoresistor" selected>Photoresistor</option>
+                         <!--<option value="DHT22">DHT22</option>
+                         <option value="Photoresistor">Photoresistor</option>-->
                     </select>
                     <input type="date" name="DateFrom">
                     <input type="date" name="DateTo">
@@ -102,12 +110,24 @@
 
     <div class="w3-card-4 container-2">
         <h1>Control panel</h1>
-            <div class="w3-card" style="padding: 5px;">
+        <div id="device-container">
+            <!--
+            <div class="w3-card pdng">               
+                <p><b>RED LED</b></p>
               <form action = "" method = "POST">
-                 <p><input class = "button" type = "submit" value = "Change Red LED" name = "red_led" /></p>
+                 <p><input class = "devicedisplay" type = "submit" value = "Change status" name = "red_led" /></p>
               </form>
-              <div style="width: 50px; height: 20px; background-color: green"></div>
+              <div class="devicedisplay status"></div>
             </div>
+            <div class="w3-card pdng">               
+                <p><b>RED LED</b></p>
+              <form action = "" method = "POST">
+                 <p><input class = "devicedisplay" type = "submit" value = "Change status" name = "red_led" /></p>
+              </form>
+              <div class="devicedisplay status"></div>
+            </div>
+            -->
+        </div>
     </div>
 </div>
 
@@ -133,6 +153,7 @@
             }];
             */
         var sensors = [];
+        var devices = [];
 
         {% for key, parent_dict in sensors.items() %}
            sensors.push({
@@ -140,7 +161,13 @@
                     labels: [{% for label in parent_dict['labels'] %}   '{{ label }}',  {% endfor %}]
                });
         {% endfor %}
-
+        
+        {% for key, parent_dict in devices.items() %}
+           devices.push({
+                    name: '{{ parent_dict["name"] }}',
+                    status: '{{ parent_dict["status"] }}'
+               });
+        {% endfor %}
     
 
         var configs = [];
@@ -162,8 +189,6 @@
             }
             return sc;
         }
-        sensorNames = getSensorNames(sensors);
-        
         
         function addSensorToConfig(sensor){
             var temp_config = {
@@ -222,10 +247,8 @@
             configs.push(temp_config);
             return temp_config;
         }
-        
-        sensorConfigs = buildSensorConfigs(sensors);   
-        
-        
+             
+        //generate template for sensor graph
         function graphCanvasGenerate(sensor, config){
                 canvas_name = 'canvas_'+sensor.name;
                 
@@ -260,8 +283,85 @@
         }
         
         
+        //generate template for device
+        function deviceGenerate(device){
+            /*
+            <div class="w3-card pdng">               
+                <p><b>RED LED</b></p>
+              <form action = "" method = "POST">
+                 <p><input class = "devicedisplay" type = "submit" value = "Change status" name = "red_led" /></p>
+              </form>
+              <div class="devicedisplay status"></div>
+            </div>
+            */
+            var devices_container = document.getElementById('device-container');
+            
+            var d_container = document.createElement('div');
+            d_container.classList.add("w3-card");
+            d_container.classList.add("pdng");
+            
+            var container_b = document.createElement('b');
+            var container_p1 = document.createElement('p');
+            
+            container_b.innerHTML = device.name;
+            container_p1.appendChild(container_b);
+            
+            var container_form = document.createElement('form');
+            container_form.setAttribute('action','');
+            container_form.setAttribute('method','POST');
+            
+            container_p2 = document.createElement('p');
+            container_input = document.createElement('input');
+            
+            container_input.classList.add("devicedisplay");
+            container_input.setAttribute('type', 'submit');
+            container_input.setAttribute('value', 'Change status');
+            container_input.setAttribute('name', device.name);
+            
+            container_p2.appendChild(container_input);
+            container_form.appendChild(container_p2);
+            
+            container_div = document.createElement('div');
+            container_div.classList.add('devicedisplay');
+            container_div.classList.add('status');
+            
+            if (device.status == '1'){
+                container_div.style.backgroundColor = 'green';
+            }else if (device.status == '0'){
+                container_div.style.backgroundColor = 'red';
+            }
+            
+            d_container.appendChild(container_p1);
+            d_container.appendChild(container_form);
+            d_container.appendChild(container_div);
+            
+            devices_container.appendChild(d_container);
+            
+        }
+        
+        function generateSortedSensors(sensor){
+            //<option value="DHT22" selected>DHT22</option>
+            var select_container = document.getElementById('title');
+            
+            var option_container = document.createElement('option');
+            option_container.setAttribute('value', sensor.name);
+            option_container.innerHTML = sensor.name;
+            select_container.appendChild(option_container);
+            
+        }
+        
+        //initialization
+        sensorNames = getSensorNames(sensors);
+        sensorConfigs = buildSensorConfigs(sensors); 
+        
+        
         for (var i = 0;i < sensors.length;i++){
             graphCanvasGenerate(sensors[i], sensorConfigs[i]);
+            generateSortedSensors(sensors[i]);
+        }
+        
+        for (var i = 0;i < devices.length;i++){
+            deviceGenerate(devices[i]);
         }
 
             const source = new EventSource("/chart-data");
