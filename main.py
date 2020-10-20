@@ -53,7 +53,7 @@ def thread_getSendData(sensorList):
             values = sensor.readValues()
             if str(values)[0] is not None:
                 postgre_insert(postgres_query, [sensor.sensor_id, values, datetime.datetime.now()])
-        time.sleep(20)
+        time.sleep(300)
     
 if __name__ == '__main__':
     main()

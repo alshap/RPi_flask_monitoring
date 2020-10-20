@@ -41,18 +41,48 @@ class MonitoringServer():
         
         @self.application.route('/',methods = ['POST', 'GET'])
         def index():
+#             sensors template = [{name: name, title: title}]
+            sensors_template = {}
+            idx = 0
+            for sensor in self.sensors:
+                sensors_template[idx] = {'name': sensor.name,'labels': sensor.labels}
+                idx += 1
+                
+            devices_template = {}
+            idx = 0
+            for device in self.devices:
+                devices_template[idx] = {'name': device.name, 'status': device.getState()}
+                idx += 1
+                
             try:
                 if request.method == 'POST':
-                    if request.form['red_led']:
-                        for x in self.devices:
-                            if x.name == 'red_led':
-                                if x.getState(): self.devices[0].off()
-                                else: x.on()
+                    for device in self.devices:
+                        try:
+                            if request.form[device.name]:
+                                if device.getState(): device.off()
+                                else: device.on()
+#                               ---
+                                devices_template = {}
+                                idx = 0
+                                for device in self.devices:
+                                    devices_template[idx] = {'name': device.name, 'status': device.getState()}
+                                    idx += 1
+#                               ---
+                                break
+                        except Exception as ex:
+                            pass
+                            
+                            
+#                     if request.form['red_led']:
+#                         for x in self.devices:
+#                             if x.name == 'red_led':
+#                                 if x.getState(): self.devices[0].off()
+#                                 else: x.on()
                 elif request.method == 'GET':
                     if request.args['SelectedSensor']:
                         selected_sensor = request.args['SelectedSensor']
                     else:
-                        return render_template('template.html')
+                        return render_template('template.html', sensors = sensors_template, devices = devices_template)
                     if request.args['DateFrom']:
                         datefrom = request.args['DateFrom']
                     else:
@@ -62,10 +92,11 @@ class MonitoringServer():
                     else:
                         dateto = datetime.now()
                     return redirect(url_for('sorted_data',datefrom = datefrom, dateto = dateto, selected_sensor = selected_sensor))
+                
+                return render_template('template.html', sensors = sensors_template, devices = devices_template)
                     
-                return render_template('template.html')
             except Exception as e:
-                return render_template('template.html')
+                return render_template('template.html', sensors = sensors_template, devices = devices_template)
                 
         
         @self.application.route('/chart-data')
@@ -85,14 +116,14 @@ class MonitoringServer():
             return Response(generate_data(), mimetype='text/event-stream')
         
     def run(self):
-        self.application.run(debug=True, threaded=True)
+        self.application.run(debug=True, threaded=True, host='0.0.0.0')
         
-sensors = SensorList()
-for sensor in sensors.sensors:
-    if (sensor.name == 'DHT22'):
-        dht22 = sensor
-    elif (sensor.name == 'Photoresistor'):
-        photoresistor = sensor
+#sensors = SensorList()
+#for sensor in sensors.sensors:
+#    if (sensor.name == 'DHT22'):
+#        dht22 = sensor
+#    elif (sensor.name == 'Photoresistor'):
+#        photoresistor = sensor
 
 #datad = dht22.getDataOnPeriod('22-07-2020', '24-07-2020')
 #datap = photoresistor.getDataOnPeriod('20-07-2020', '24-07-2020')
